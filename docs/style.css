@@ -2,7 +2,8 @@ body{
 
 margin:0;
 font-family:Arial;
-background:#f4f6f9;
+background:#0e0e0e;
+color:white;
 display:flex;
 justify-content:center;
 align-items:center;
@@ -14,10 +15,6 @@ height:100vh;
 
 width:95%;
 max-width:420px;
-background:white;
-padding:30px;
-border-radius:10px;
-box-shadow:0 4px 20px rgba(0,0,0,0.1);
 text-align:center;
 
 }
@@ -25,7 +22,6 @@ text-align:center;
 h1{
 
 margin-bottom:25px;
-font-size:26px;
 
 }
 
@@ -34,46 +30,47 @@ select{
 width:100%;
 padding:12px;
 font-size:16px;
-margin-bottom:25px;
+margin-bottom:20px;
 
 }
 
 .player{
 
-margin-top:10px;
-
-}
-
-.controls{
-
 display:flex;
-justify-content:space-between;
+justify-content:center;
+align-items:center;
+gap:20px;
 margin-top:20px;
 
 }
 
-button{
+.player button{
 
-flex:1;
-margin:5px;
-padding:12px;
+background:none;
 border:none;
-background:#222;
+font-size:26px;
 color:white;
-font-size:15px;
 cursor:pointer;
 
 }
 
-button:hover{
+#play{
 
-background:#444;
+font-size:36px;
 
 }
 
-audio{
+.progress{
 
-width:100%;
-margin-top:10px;
+display:flex;
+align-items:center;
+gap:10px;
+margin-top:25px;
+
+}
+
+#seek{
+
+flex:1;
 
 }
