@@ -1,89 +1,109 @@
-let playlist = []
-let current = null
+let playlist=[]
+let current=null
+let nextTrack=null
+let categoryName=""
 
-const audio = document.getElementById("audio")
+const audio=document.getElementById("audio")
 
-// GitHub RAW base path
 const BASE =
 "https://raw.githubusercontent.com/pellimelam/pellimelam-music-infrastructure/main/radios/generated/"
 
 async function loadCategories(){
 
-const res = await fetch(BASE + "categories.json")
+const res=await fetch(BASE+"categories.json")
 
-const data = await res.json()
+const data=await res.json()
 
-const container = document.getElementById("categories")
+const select=document.getElementById("categorySelect")
 
-container.innerHTML = ""
+data.categories.forEach(cat=>{
 
-data.categories.forEach(cat => {
+const option=document.createElement("option")
 
-const btn = document.createElement("button")
+option.value=cat.id
+option.textContent=cat.name
 
-btn.className = "category"
-
-btn.innerText = cat.name
-
-btn.onclick = () => loadCategory(cat.id)
-
-container.appendChild(btn)
+select.appendChild(option)
 
 })
 
 }
 
-async function loadCategory(id){
+async function loadCategory(){
 
-const res = await fetch(BASE + id + ".json")
+const id=document.getElementById("categorySelect").value
 
-playlist = await res.json()
+categoryName=document.getElementById("categorySelect").selectedOptions[0].text
 
-next()
+const res=await fetch(BASE+id+".json")
+
+playlist=await res.json()
+
+document.getElementById("title").innerText=categoryName
+
+prepareNext()
+
+playNext()
 
 }
 
 function randomTrack(){
 
-return playlist[Math.floor(Math.random() * playlist.length)]
+return playlist[Math.floor(Math.random()*playlist.length)]
 
 }
 
-function playTrack(track){
+function prepareNext(){
 
-current = track
+nextTrack=randomTrack()
 
-audio.src = track.url
+}
 
-document.getElementById("title").innerText = track.title
+function playNext(){
+
+if(!nextTrack) return
+
+current=nextTrack
+
+audio.src=current.url
+
+document.getElementById("title").innerText=categoryName
+
+audio.play()
+
+prepareNext()
+
+}
+
+document.getElementById("playBtn").onclick=()=>{
+
+if(!playlist.length){
+
+loadCategory()
+
+}else{
 
 audio.play()
 
 }
 
-function play(){
-
-if(current) audio.play()
-
 }
 
-function stop(){
+document.getElementById("stopBtn").onclick=()=>{
 
 audio.pause()
 
 }
 
-function next(){
+document.getElementById("nextBtn").onclick=()=>{
 
-if(!playlist.length) return
-
-playTrack(randomTrack())
+playNext()
 
 }
 
-audio.addEventListener("ended", () => {
+audio.addEventListener("ended",()=>{
 
-next()
+playNext()
 
 })
 
