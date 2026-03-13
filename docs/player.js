@@ -1,5 +1,4 @@
 let playlist=[]
-let history=[]
 let currentIndex=0
 
 let shuffle=false
@@ -13,7 +12,6 @@ const BASE =
 async function loadCategories(){
 
 const res=await fetch(BASE+"categories.json")
-
 const data=await res.json()
 
 const select=document.getElementById("categorySelect")
@@ -21,10 +19,8 @@ const select=document.getElementById("categorySelect")
 data.categories.forEach(cat=>{
 
 const option=document.createElement("option")
-
 option.value=cat.id
 option.textContent=cat.name
-
 select.appendChild(option)
 
 })
@@ -34,7 +30,6 @@ select.appendChild(option)
 async function loadCategory(){
 
 const id=document.getElementById("categorySelect").value
-
 const res=await fetch(BASE+id+".json")
 
 playlist=await res.json()
@@ -46,43 +41,43 @@ play()
 }
 
 function randomIndex(){
-
 return Math.floor(Math.random()*playlist.length)
-
 }
 
 function play(){
 
 if(!playlist.length){
-
 loadCategory()
-
 return
-
 }
 
 audio.src=playlist[currentIndex].url
+audio.play()
+
+}
+
+function togglePlay(){
+
+if(audio.paused){
 
 audio.play()
+playBtn.innerText="⏸"
+
+}else{
+
+audio.pause()
+playBtn.innerText="▶"
+
+}
 
 }
 
 function next(){
 
 if(shuffle){
-
 currentIndex=randomIndex()
-
 }else{
-
-currentIndex++
-
-if(currentIndex>=playlist.length){
-
-currentIndex=0
-
-}
-
+currentIndex=(currentIndex+1)%playlist.length
 }
 
 play()
@@ -91,13 +86,7 @@ play()
 
 function prev(){
 
-currentIndex--
-
-if(currentIndex<0){
-
-currentIndex=playlist.length-1
-
-}
+currentIndex=(currentIndex-1+playlist.length)%playlist.length
 
 play()
 
@@ -106,47 +95,23 @@ play()
 audio.addEventListener("ended",()=>{
 
 if(loop){
-
 play()
-
 }else{
-
 next()
-
 }
 
 })
 
-document.getElementById("play").onclick=()=>{
+const playBtn=document.getElementById("play")
 
-if(audio.paused){
+playBtn.onclick=togglePlay
 
-play()
-
-}else{
-
-audio.pause()
-
-}
-
-}
-
-document.getElementById("next").onclick=()=>{
-
-next()
-
-}
-
-document.getElementById("prev").onclick=()=>{
-
-prev()
-
-}
+document.getElementById("next").onclick=next
+document.getElementById("prev").onclick=prev
 
 document.getElementById("shuffle").onclick=()=>{
 
 shuffle=!shuffle
-
 document.getElementById("shuffle").classList.toggle("active")
 
 }
@@ -154,7 +119,6 @@ document.getElementById("shuffle").classList.toggle("active")
 document.getElementById("loop").onclick=()=>{
 
 loop=!loop
-
 document.getElementById("loop").classList.toggle("active")
 
 }
@@ -165,16 +129,22 @@ audio.addEventListener("timeupdate",()=>{
 
 seek.value=(audio.currentTime/audio.duration)*100 || 0
 
-document.getElementById("currentTime").textContent=format(audio.currentTime)
-
-document.getElementById("duration").textContent=format(audio.duration)
+document.getElementById("currentTime").innerText=format(audio.currentTime)
+document.getElementById("duration").innerText=format(audio.duration)
 
 })
 
 seek.oninput=()=>{
-
 audio.currentTime=(seek.value/100)*audio.duration
+}
 
+const volume=document.getElementById("volume")
+
+volume.value=0.8
+audio.volume=0.8
+
+volume.oninput=()=>{
+audio.volume=volume.value
 }
 
 function format(t){
@@ -182,7 +152,6 @@ function format(t){
 if(!t) return "0:00"
 
 const m=Math.floor(t/60)
-
 const s=Math.floor(t%60)
 
 return m+":"+(s<10?"0":"")+s
