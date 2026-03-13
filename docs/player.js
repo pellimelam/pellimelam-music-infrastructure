@@ -1,25 +1,31 @@
-let playlist=[]
-let current=null
+let playlist = []
+let current = null
 
-const audio=document.getElementById("audio")
+const audio = document.getElementById("audio")
+
+// GitHub RAW base path
+const BASE =
+"https://raw.githubusercontent.com/pellimelam/pellimelam-music-infrastructure/main/radios/generated/"
 
 async function loadCategories(){
 
-const res=await fetch("../radios/generated/categories.json")
+const res = await fetch(BASE + "categories.json")
 
-const data=await res.json()
+const data = await res.json()
 
-const container=document.getElementById("categories")
+const container = document.getElementById("categories")
 
-data.categories.forEach(cat=>{
+container.innerHTML = ""
 
-const btn=document.createElement("button")
+data.categories.forEach(cat => {
 
-btn.className="category"
+const btn = document.createElement("button")
 
-btn.innerText=cat.name
+btn.className = "category"
 
-btn.onclick=()=>loadCategory(cat.id)
+btn.innerText = cat.name
+
+btn.onclick = () => loadCategory(cat.id)
 
 container.appendChild(btn)
 
@@ -29,9 +35,9 @@ container.appendChild(btn)
 
 async function loadCategory(id){
 
-const res=await fetch("../radios/generated/"+id+".json")
+const res = await fetch(BASE + id + ".json")
 
-playlist=await res.json()
+playlist = await res.json()
 
 next()
 
@@ -39,17 +45,17 @@ next()
 
 function randomTrack(){
 
-return playlist[Math.floor(Math.random()*playlist.length)]
+return playlist[Math.floor(Math.random() * playlist.length)]
 
 }
 
 function playTrack(track){
 
-current=track
+current = track
 
-audio.src=track.url
+audio.src = track.url
 
-document.getElementById("title").innerText=track.title
+document.getElementById("title").innerText = track.title
 
 audio.play()
 
@@ -75,7 +81,7 @@ playTrack(randomTrack())
 
 }
 
-audio.addEventListener("ended",()=>{
+audio.addEventListener("ended", () => {
 
 next()
 
