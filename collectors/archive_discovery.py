@@ -1,20 +1,34 @@
 import requests
 import json
 import os
+import time
 
 API_URL = "https://archive.org/advancedsearch.php"
 
-QUERY = "mediatype:audio AND (nadaswaram OR shehnai OR temple OR carnatic OR classical)"
+SEARCH_TERMS = [
+    "nadaswaram",
+    "nagaswaram",
+    "shehnai",
+    "thavil",
+    "mridangam",
+    "chenda melam",
+    "carnatic instrumental",
+    "temple music india",
+    "south indian temple music",
+    "indian classical instrumental"
+]
 
 ROWS = 200
 
 OUTPUT_FILE = "dataset/tracks.json"
 
 
-def search_archive():
+def search_archive(term):
+
+    query = f'(mediatype:audio) AND ({term}) AND (collection:opensource_audio OR collection:audio_music)'
 
     params = {
-        "q": QUERY,
+        "q": query,
         "fl[]": ["identifier", "title", "creator"],
         "rows": ROWS,
         "output": "json"
@@ -22,9 +36,12 @@ def search_archive():
 
     r = requests.get(API_URL, params=params)
 
+    if r.status_code != 200:
+        return []
+
     data = r.json()
 
-    return data["response"]["docs"]
+    return data.get("response", {}).get("docs", [])
 
 
 def load_dataset():
@@ -44,37 +61,43 @@ def save_dataset(data):
 
 def main():
 
-    print("Searching archive...")
-
-    results = search_archive()
-
     dataset = load_dataset()
 
     existing_ids = {x["identifier"] for x in dataset}
 
     new_tracks = []
 
-    for item in results:
+    for term in SEARCH_TERMS:
 
-        identifier = item["identifier"]
+        print("Searching:", term)
 
-        if identifier in existing_ids:
-            continue
+        results = search_archive(term)
 
-        track = {
-            "identifier": identifier,
-            "title": item.get("title", ""),
-            "creator": item.get("creator", ""),
-            "source": "archive_org"
-        }
+        for item in results:
 
-        new_tracks.append(track)
+            identifier = item["identifier"]
+
+            if identifier in existing_ids:
+                continue
+
+            track = {
+                "identifier": identifier,
+                "title": item.get("title", ""),
+                "creator": item.get("creator", ""),
+                "source": "archive_org"
+            }
+
+            new_tracks.append(track)
+
+            existing_ids.add(identifier)
+
+        time.sleep(1)
 
     dataset.extend(new_tracks)
 
     save_dataset(dataset)
 
-    print(f"Added {len(new_tracks)} new tracks")
+    print("Added", len(new_tracks), "new archive items")
 
 
 if __name__ == "__main__":
