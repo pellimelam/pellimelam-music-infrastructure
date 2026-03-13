@@ -1,5 +1,8 @@
 name: Pellimelam Global Radio Pipeline
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
   schedule:
