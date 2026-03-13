@@ -1,7 +1,9 @@
 let playlist=[]
-let current=null
-let nextTrack=null
-let categoryName=""
+let history=[]
+let currentIndex=0
+
+let shuffle=false
+let loop=false
 
 const audio=document.getElementById("audio")
 
@@ -33,78 +35,154 @@ async function loadCategory(){
 
 const id=document.getElementById("categorySelect").value
 
-categoryName=document.getElementById("categorySelect").selectedOptions[0].text
-
 const res=await fetch(BASE+id+".json")
 
 playlist=await res.json()
 
-document.getElementById("title").innerText=categoryName
+currentIndex=randomIndex()
 
-prepareNext()
-
-playNext()
+play()
 
 }
 
-function randomTrack(){
+function randomIndex(){
 
-return playlist[Math.floor(Math.random()*playlist.length)]
-
-}
-
-function prepareNext(){
-
-nextTrack=randomTrack()
+return Math.floor(Math.random()*playlist.length)
 
 }
 
-function playNext(){
-
-if(!nextTrack) return
-
-current=nextTrack
-
-audio.src=current.url
-
-document.getElementById("title").innerText=categoryName
-
-audio.play()
-
-prepareNext()
-
-}
-
-document.getElementById("playBtn").onclick=()=>{
+function play(){
 
 if(!playlist.length){
 
 loadCategory()
 
-}else{
+return
+
+}
+
+audio.src=playlist[currentIndex].url
 
 audio.play()
 
 }
 
+function next(){
+
+if(shuffle){
+
+currentIndex=randomIndex()
+
+}else{
+
+currentIndex++
+
+if(currentIndex>=playlist.length){
+
+currentIndex=0
+
 }
 
-document.getElementById("stopBtn").onclick=()=>{
+}
 
-audio.pause()
+play()
 
 }
 
-document.getElementById("nextBtn").onclick=()=>{
+function prev(){
 
-playNext()
+currentIndex--
+
+if(currentIndex<0){
+
+currentIndex=playlist.length-1
+
+}
+
+play()
 
 }
 
 audio.addEventListener("ended",()=>{
 
-playNext()
+if(loop){
+
+play()
+
+}else{
+
+next()
+
+}
 
 })
+
+document.getElementById("play").onclick=()=>{
+
+if(audio.paused){
+
+play()
+
+}else{
+
+audio.pause()
+
+}
+
+}
+
+document.getElementById("next").onclick=()=>{
+
+next()
+
+}
+
+document.getElementById("prev").onclick=()=>{
+
+prev()
+
+}
+
+document.getElementById("shuffle").onclick=()=>{
+
+shuffle=!shuffle
+
+}
+
+document.getElementById("loop").onclick=()=>{
+
+loop=!loop
+
+}
+
+const seek=document.getElementById("seek")
+
+audio.addEventListener("timeupdate",()=>{
+
+seek.value=(audio.currentTime/audio.duration)*100 || 0
+
+document.getElementById("currentTime").textContent=format(audio.currentTime)
+
+document.getElementById("duration").textContent=format(audio.duration)
+
+})
+
+seek.oninput=()=>{
+
+audio.currentTime=(seek.value/100)*audio.duration
+
+}
+
+function format(t){
+
+if(!t) return "0:00"
+
+const m=Math.floor(t/60)
+
+const s=Math.floor(t%60)
+
+return m+":"+(s<10?"0":"")+s
+
+}
 
 loadCategories()
