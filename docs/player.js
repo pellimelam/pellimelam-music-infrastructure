@@ -147,11 +147,15 @@ document.getElementById("shuffle").onclick=()=>{
 
 shuffle=!shuffle
 
+document.getElementById("shuffle").classList.toggle("active")
+
 }
 
 document.getElementById("loop").onclick=()=>{
 
 loop=!loop
+
+document.getElementById("loop").classList.toggle("active")
 
 }
 
