@@ -1,88 +1,44 @@
 import json
 
-INPUT_FILE = "dataset/tracks.json"
-OUTPUT_FILE = "dataset/tracks_cleaned.json"
+INPUT="dataset/tracks.json"
+OUTPUT="dataset/tracks_cleaned.json"
 
-KEYWORDS = [
-    "nadaswaram",
-    "nagaswaram",
-    "shehnai",
-    "melam",
-    "thavil",
-    "mridangam",
-    "chenda",
-    "carnatic",
-    "temple",
-    "instrumental"
+KEYWORDS=[
+"nadaswaram",
+"nagaswaram",
+"shehnai",
+"mridangam",
+"carnatic",
+"temple",
+"nadhaswaram"
 ]
 
+def text(v):
 
-def normalize(value):
+    if isinstance(v,list):
+        return " ".join(v)
 
-    if isinstance(value, list):
-        return " ".join(value)
+    return str(v)
 
-    if isinstance(value, str):
-        return value
+data=json.load(open(INPUT))
 
-    return ""
+clean=[]
 
+for t in data:
 
-def load_dataset():
-    with open(INPUT_FILE, "r") as f:
-        return json.load(f)
+    if "audio_urls" not in t:
+        continue
 
+    s=(text(t.get("title"))+" "+text(t.get("creator"))).lower()
 
-def save_dataset(data):
-    with open(OUTPUT_FILE, "w") as f:
-        json.dump(data, f, indent=2)
+    # also inspect audio file names
+    for u in t.get("audio_urls",[]):
+        s+=" "+u.lower()
 
+    if any(k in s for k in KEYWORDS):
 
-def is_relevant(track):
+        clean.append(t)
 
-    title = normalize(track.get("title"))
-    creator = normalize(track.get("creator"))
+json.dump(clean,open(OUTPUT,"w"),indent=2)
 
-    text = (title + " " + creator).lower()
-
-    for keyword in KEYWORDS:
-        if keyword in text:
-            return True
-
-    return False
-
-
-def main():
-
-    dataset = load_dataset()
-
-    cleaned = []
-    seen = set()
-
-    for track in dataset:
-
-        identifier = track.get("identifier")
-
-        if identifier in seen:
-            continue
-
-        seen.add(identifier)
-
-        if not track.get("audio_urls"):
-            continue
-
-        if not is_relevant(track):
-            continue
-
-        cleaned.append(track)
-
-    save_dataset(cleaned)
-
-    print("Dataset cleaning complete")
-    print("Original tracks:", len(dataset))
-    print("Cleaned tracks:", len(cleaned))
-    print("Saved to:", OUTPUT_FILE)
-
-
-if __name__ == "__main__":
-    main()
+print("cleaned tracks:",len(clean))
