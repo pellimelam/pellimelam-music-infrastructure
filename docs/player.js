@@ -13,6 +13,9 @@ let repeat=false
 
 let nextAudio=new Audio()
 
+
+/* LOAD CATEGORIES */
+
 async function loadCategories(){
 
 const res=await fetch(BASE+"categories.json")
@@ -33,6 +36,9 @@ await preloadPlaylists(data.categories)
 
 }
 
+
+/* PRELOAD ALL PLAYLISTS */
+
 async function preloadPlaylists(categories){
 
 for(const cat of categories){
@@ -43,6 +49,9 @@ playlistCache[cat.id]=await r.json()
 }
 
 }
+
+
+/* LOAD SELECTED CATEGORY */
 
 function loadCategory(){
 
@@ -58,9 +67,12 @@ createQueue()
 
 index=0
 
-playTrack()
+prepareTrack()
 
 }
+
+
+/* CREATE QUEUE */
 
 function createQueue(){
 
@@ -68,11 +80,43 @@ queue=[...playlist]
 
 if(shuffle){
 
-queue.sort(()=>Math.random()-0.5)
+shuffleArray(queue)
 
 }
 
 }
+
+
+/* SPOTIFY SHUFFLE */
+
+function shuffleArray(arr){
+
+for(let i=arr.length-1;i>0;i--){
+
+const j=Math.floor(Math.random()*(i+1))
+[arr[i],arr[j]]=[arr[j],arr[i]]
+
+}
+
+}
+
+
+/* PREPARE TRACK (NO AUTOPLAY) */
+
+function prepareTrack(){
+
+if(!queue.length) return
+
+audio.src=queue[index].url
+
+document.getElementById("play").innerText="▶"
+
+preloadNext()
+
+}
+
+
+/* PRELOAD NEXT TRACK */
 
 function preloadNext(){
 
@@ -84,6 +128,9 @@ nextAudio.preload="auto"
 }
 
 }
+
+
+/* PLAY TRACK */
 
 function playTrack(){
 
@@ -98,6 +145,9 @@ document.getElementById("play").innerText="⏸"
 preloadNext()
 
 }
+
+
+/* PLAY / PAUSE */
 
 function togglePlay(){
 
@@ -116,6 +166,9 @@ btn.innerText="▶"
 }
 
 }
+
+
+/* NEXT SONG */
 
 function next(){
 
@@ -140,6 +193,9 @@ playTrack()
 
 }
 
+
+/* PREVIOUS SONG */
+
 function prev(){
 
 if(audio.currentTime>3){
@@ -157,11 +213,20 @@ playTrack()
 
 }
 
+
+/* SONG ENDED */
+
 audio.addEventListener("ended",next)
+
+
+/* BUTTONS */
 
 document.getElementById("play").onclick=togglePlay
 document.getElementById("next").onclick=next
 document.getElementById("prev").onclick=prev
+
+
+/* SHUFFLE */
 
 document.getElementById("shuffle").onclick=()=>{
 
@@ -173,6 +238,9 @@ createQueue()
 
 }
 
+
+/* LOOP */
+
 document.getElementById("loop").onclick = () => {
 
 repeat = !repeat
@@ -182,6 +250,9 @@ audio.loop = repeat
 document.getElementById("loop").classList.toggle("active")
 
 }
+
+
+/* SEEK BAR */
 
 const seek=document.getElementById("seek")
 
@@ -200,6 +271,9 @@ audio.currentTime=(seek.value/100)*audio.duration
 
 }
 
+
+/* VOLUME */
+
 const volume=document.getElementById("volume")
 
 volume.value=0.8
@@ -210,6 +284,9 @@ volume.oninput=()=>{
 audio.volume=volume.value
 
 }
+
+
+/* FORMAT TIME */
 
 function format(t){
 
@@ -222,6 +299,9 @@ return m+":"+(s<10?"0":"")+s
 
 }
 
+
+/* CATEGORY CHANGE */
+
 document.getElementById("categorySelect").onchange=()=>{
 
 audio.pause()
@@ -232,6 +312,9 @@ queue=[]
 loadCategory()
 
 }
+
+
+/* INIT */
 
 async function init(){
 
