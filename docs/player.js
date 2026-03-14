@@ -1,3 +1,9 @@
+const BASE =
+"https://raw.githubusercontent.com/pellimelam/pellimelam-music-infrastructure/main/radios/generated/"
+
+const audio=document.getElementById("audio")
+
+let playlistCache={}
 let playlist=[]
 let queue=[]
 let index=0
@@ -7,11 +13,6 @@ let repeat=false
 
 let nextAudio=new Audio()
 
-const audio=document.getElementById("audio")
-
-const BASE =
-"https://raw.githubusercontent.com/pellimelam/pellimelam-music-infrastructure/main/radios/generated/"
-
 async function loadCategories(){
 
 const res=await fetch(BASE+"categories.json")
@@ -19,29 +20,39 @@ const data=await res.json()
 
 const select=document.getElementById("categorySelect")
 
-data.categories.forEach(cat=>{
+for(const cat of data.categories){
 
 const option=document.createElement("option")
 option.value=cat.id
 option.textContent=cat.name
 select.appendChild(option)
 
-})
+}
+
+await preloadPlaylists(data.categories)
 
 }
 
-async function loadCategory(){
+async function preloadPlaylists(categories){
+
+for(const cat of categories){
+
+const r=await fetch(BASE+cat.id+".json")
+playlistCache[cat.id]=await r.json()
+
+}
+
+}
+
+function loadCategory(){
 
 const select=document.getElementById("categorySelect")
 const id=select.value
 
-// display selected category name
-document.getElementById("title").innerText =
+document.getElementById("title").innerText=
 select.options[select.selectedIndex].text
 
-const res=await fetch(BASE+id+".json")
-
-playlist=await res.json()
+playlist=playlistCache[id]
 
 createQueue()
 
@@ -65,7 +76,7 @@ queue.sort(()=>Math.random()-0.5)
 
 function preloadNext(){
 
-if(index+1 < queue.length){
+if(index+1<queue.length){
 
 nextAudio.src=queue[index+1].url
 nextAudio.preload="auto"
@@ -79,6 +90,7 @@ function playTrack(){
 if(!queue.length) return
 
 audio.src=queue[index].url
+
 audio.play()
 
 document.getElementById("play").innerText="⏸"
@@ -89,15 +101,17 @@ preloadNext()
 
 function togglePlay(){
 
+const btn=document.getElementById("play")
+
 if(audio.paused){
 
 audio.play()
-play.innerText="⏸"
+btn.innerText="⏸"
 
 }else{
 
 audio.pause()
-play.innerText="▶"
+btn.innerText="▶"
 
 }
 
@@ -143,18 +157,10 @@ playTrack()
 
 }
 
-audio.addEventListener("ended",()=>{
+audio.addEventListener("ended",next)
 
-next()
-
-})
-
-const play=document.getElementById("play")
-
-play.onclick=togglePlay
-
+document.getElementById("play").onclick=togglePlay
 document.getElementById("next").onclick=next
-
 document.getElementById("prev").onclick=prev
 
 document.getElementById("shuffle").onclick=()=>{
@@ -179,7 +185,7 @@ const seek=document.getElementById("seek")
 
 audio.addEventListener("timeupdate",()=>{
 
-seek.value=(audio.currentTime/audio.duration)*100 || 0
+seek.value=(audio.currentTime/audio.duration)*100||0
 
 document.getElementById("currentTime").innerText=format(audio.currentTime)
 document.getElementById("duration").innerText=format(audio.duration)
@@ -221,6 +227,10 @@ audio.pause()
 playlist=[]
 queue=[]
 
+loadCategory()
+
+}
+
 async function init(){
 
 await loadCategories()
@@ -230,7 +240,3 @@ loadCategory()
 }
 
 init()
-
-}
-
-loadCategories()
