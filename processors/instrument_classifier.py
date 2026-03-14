@@ -4,14 +4,52 @@ INPUT_FILE = "dataset/tracks_cleaned.json"
 OUTPUT_FILE = "dataset/tracks_classified.json"
 
 INSTRUMENT_MAP = {
-    "nadaswaram": ["nadaswaram", "nagaswaram"],
-    "shehnai": ["shehnai"],
-    "mridangam": ["mridangam"],
-    "thavil": ["thavil"],
-    "chenda": ["chenda", "melam"],
-    "veena": ["veena"],
-    "carnatic_instrumental": ["carnatic", "instrumental"],
-    "temple_music": ["temple"]
+
+    "nadaswaram": [
+        "nadaswaram",
+        "nagaswaram",
+        "nadhaswaram"
+    ],
+
+    "shehnai": [
+        "shehnai"
+    ],
+
+    "indian_saxophone": [
+        "saxophone",
+        "carnatic sax",
+        "kadri gopalnath",
+        "indian sax"
+    ],
+
+    "mridangam": [
+        "mridangam"
+    ],
+
+    "thavil": [
+        "thavil",
+        "dolu"
+    ],
+
+    "chenda": [
+        "chenda",
+        "melam"
+    ],
+
+    "veena": [
+        "veena"
+    ],
+
+    "temple_music": [
+        "temple",
+        "mangala vadyam"
+    ],
+
+    "carnatic_instrumental": [
+        "carnatic",
+        "instrumental"
+    ]
+
 }
 
 
