@@ -16,10 +16,12 @@ INSTRUMENT_MAP = {
     ],
 
     "indian_saxophone": [
-        "saxophone",
         "carnatic sax",
         "kadri gopalnath",
-        "indian sax"
+        "kadri",
+        "ragam sax",
+        "raga sax",
+        "saxophone carnatic"
     ],
 
     "mridangam": [
