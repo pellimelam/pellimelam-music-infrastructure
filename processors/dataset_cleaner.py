@@ -51,13 +51,27 @@ for t in data:
 
     s=(text(t.get("title"))+" "+text(t.get("creator"))).lower()
 
-    # also inspect audio file names
     for u in t.get("audio_urls",[]):
         s+=" "+u.lower()
 
-    if any(k in s for k in KEYWORDS):
+    # filter relevant traditional music
+    if not any(k in s for k in KEYWORDS):
+        continue
 
-        clean.append(t)
+    # special filter for saxophone (remove western sax)
+    if "sax" in s:
+
+        if not any(k in s for k in [
+            "carnatic",
+            "kadri",
+            "ragam",
+            "raga",
+            "kriti",
+            "varnam"
+        ]):
+            continue
+
+    clean.append(t)
 
 json.dump(clean,open(OUTPUT,"w"),indent=2)
 
