@@ -32,7 +32,12 @@ select.appendChild(option)
 
 async function loadCategory(){
 
-const id=document.getElementById("categorySelect").value
+const select=document.getElementById("categorySelect")
+const id=select.value
+
+// display selected category name
+document.getElementById("title").innerText =
+select.options[select.selectedIndex].text
 
 const res=await fetch(BASE+id+".json")
 
@@ -216,7 +221,15 @@ audio.pause()
 playlist=[]
 queue=[]
 
+async function init(){
+
+await loadCategories()
+
 loadCategory()
+
+}
+
+init()
 
 }
 
