@@ -1,8 +1,11 @@
 let playlist=[]
-let currentIndex=0
+let queue=[]
+let index=0
 
 let shuffle=false
-let loop=false
+let repeat=false
+
+let nextAudio=new Audio()
 
 const audio=document.getElementById("audio")
 
@@ -30,29 +33,52 @@ select.appendChild(option)
 async function loadCategory(){
 
 const id=document.getElementById("categorySelect").value
+
 const res=await fetch(BASE+id+".json")
 
 playlist=await res.json()
 
-currentIndex=randomIndex()
+createQueue()
 
-play()
+index=0
+
+playTrack()
 
 }
 
-function randomIndex(){
-return Math.floor(Math.random()*playlist.length)
+function createQueue(){
+
+queue=[...playlist]
+
+if(shuffle){
+
+queue.sort(()=>Math.random()-0.5)
+
 }
 
-function play(){
-
-if(!playlist.length){
-loadCategory()
-return
 }
 
-audio.src=playlist[currentIndex].url
+function preloadNext(){
+
+if(index+1 < queue.length){
+
+nextAudio.src=queue[index+1].url
+nextAudio.preload="auto"
+
+}
+
+}
+
+function playTrack(){
+
+if(!queue.length) return
+
+audio.src=queue[index].url
 audio.play()
+
+document.getElementById("play").innerText="⏸"
+
+preloadNext()
 
 }
 
@@ -61,12 +87,12 @@ function togglePlay(){
 if(audio.paused){
 
 audio.play()
-playBtn.innerText="⏸"
+play.innerText="⏸"
 
 }else{
 
 audio.pause()
-playBtn.innerText="▶"
+play.innerText="▶"
 
 }
 
@@ -74,51 +100,72 @@ playBtn.innerText="▶"
 
 function next(){
 
-if(shuffle){
-currentIndex=randomIndex()
+index++
+
+if(index>=queue.length){
+
+if(repeat){
+
+index=0
+
 }else{
-currentIndex=(currentIndex+1)%playlist.length
+
+index=queue.length-1
+return
+
 }
 
-play()
+}
+
+playTrack()
 
 }
 
 function prev(){
 
-currentIndex=(currentIndex-1+playlist.length)%playlist.length
+if(audio.currentTime>3){
 
-play()
+audio.currentTime=0
+return
+
+}
+
+index--
+
+if(index<0) index=0
+
+playTrack()
 
 }
 
 audio.addEventListener("ended",()=>{
 
-if(loop){
-play()
-}else{
 next()
-}
 
 })
 
-const playBtn=document.getElementById("play")
+const play=document.getElementById("play")
 
-playBtn.onclick=togglePlay
+play.onclick=togglePlay
 
 document.getElementById("next").onclick=next
+
 document.getElementById("prev").onclick=prev
 
 document.getElementById("shuffle").onclick=()=>{
 
 shuffle=!shuffle
+
 document.getElementById("shuffle").classList.toggle("active")
+
+createQueue()
 
 }
 
 document.getElementById("loop").onclick=()=>{
 
-loop=!loop
+repeat=!repeat
+
 document.getElementById("loop").classList.toggle("active")
 
 }
@@ -135,7 +182,9 @@ document.getElementById("duration").innerText=format(audio.duration)
 })
 
 seek.oninput=()=>{
+
 audio.currentTime=(seek.value/100)*audio.duration
+
 }
 
 const volume=document.getElementById("volume")
@@ -144,7 +193,9 @@ volume.value=0.8
 audio.volume=0.8
 
 volume.oninput=()=>{
+
 audio.volume=volume.value
+
 }
 
 function format(t){
@@ -155,6 +206,17 @@ const m=Math.floor(t/60)
 const s=Math.floor(t%60)
 
 return m+":"+(s<10?"0":"")+s
+
+}
+
+document.getElementById("categorySelect").onchange=()=>{
+
+audio.pause()
+
+playlist=[]
+queue=[]
+
+loadCategory()
 
 }
 
