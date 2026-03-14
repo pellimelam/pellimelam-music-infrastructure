@@ -173,9 +173,11 @@ createQueue()
 
 }
 
-document.getElementById("loop").onclick=()=>{
+document.getElementById("loop").onclick = () => {
 
-repeat=!repeat
+repeat = !repeat
+
+audio.loop = repeat
 
 document.getElementById("loop").classList.toggle("active")
 
