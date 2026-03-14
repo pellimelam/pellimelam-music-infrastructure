@@ -4,13 +4,33 @@ INPUT="dataset/tracks.json"
 OUTPUT="dataset/tracks_cleaned.json"
 
 KEYWORDS=[
+
 "nadaswaram",
 "nagaswaram",
+"nadhaswaram",
+
 "shehnai",
+
 "mridangam",
-"carnatic",
+
+"saxophone",
+"carnatic sax",
+"kadri gopalnath",
+
+"thavil",
+"dolu",
+
+"chenda",
+"melam",
+
+"veena",
+
 "temple",
-"nadhaswaram"
+"mangala vadyam",
+
+"carnatic",
+"instrumental"
+
 ]
 
 def text(v):
