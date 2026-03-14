@@ -54,16 +54,13 @@ INSTRUMENT_MAP = {
 
 }
 
-
 def load_dataset():
     with open(INPUT_FILE, "r") as f:
         return json.load(f)
 
-
 def save_dataset(data):
     with open(OUTPUT_FILE, "w") as f:
         json.dump(data, f, indent=2)
-
 
 def detect_instrument(track):
 
@@ -71,6 +68,18 @@ def detect_instrument(track):
         str(track.get("title", "")) +
         str(track.get("creator", ""))
     ).lower()
+
+    # special detection for Carnatic sax
+    if "sax" in text:
+        if any(k in text for k in [
+            "carnatic",
+            "kadri",
+            "ragam",
+            "raga",
+            "kriti",
+            "varnam"
+        ]):
+            return "indian_saxophone"
 
     for instrument, keywords in INSTRUMENT_MAP.items():
 
@@ -80,7 +89,6 @@ def detect_instrument(track):
                 return instrument
 
     return "unknown"
-
 
 def main():
 
@@ -96,7 +104,6 @@ def main():
 
     print("Classification complete")
     print("Tracks processed:", len(dataset))
-
 
 if __name__ == "__main__":
     main()
