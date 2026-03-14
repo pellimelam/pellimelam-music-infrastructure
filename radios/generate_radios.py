@@ -30,6 +30,8 @@ def main():
             })
 
     for instrument, tracks in radios.items():
+        if instrument == "unknown":
+            continue
 
         filename = os.path.join(OUTPUT_DIR, f"{instrument}.json")
 
